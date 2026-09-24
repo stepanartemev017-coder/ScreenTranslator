@@ -1,0 +1,28 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Syntax check
+        run: python -m py_compile app.py
+      - name: Build EXE
+        run: pyinstaller --clean --noconfirm --onefile --windowed --name ScreenTranslator --hidden-import keyboard --collect-all keyboard app.py
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScreenTranslator-Windows
+          path: dist/ScreenTranslator.exe
